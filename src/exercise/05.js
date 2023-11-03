@@ -11,6 +11,7 @@ import {
 } from '../utils'
 
 const AppStateContext = React.createContext()
+const AppDispatchContext = React.createContext()
 
 const initialGrid = Array.from({length: 100}, () =>
   Array.from({length: 100}, () => Math.random() * 100),
@@ -39,7 +40,18 @@ function AppProvider({children}) {
     grid: initialGrid,
   })
   // 🐨 memoize this value with React.useMemo
-  const value = [state, dispatch]
+  // const value = [state, dispatch]
+  // const value = React.useMemo(() => [state, dispatch], [state])
+  // return (
+  //   <AppStateContext.Provider value={value}>
+  //     {/* {children}
+  //      */}
+  //     <AppDispatchContext.Provider value={dispatch}>
+  //       {children}
+  //     </AppDispatchContext.Provider>
+  //   </AppStateContext.Provider>
+  // )
+  const value = React.useMemo(() => [state, dispatch], [state])
   return (
     <AppStateContext.Provider value={value}>
       {children}
@@ -57,6 +69,7 @@ function useAppState() {
 
 function Grid() {
   const [, dispatch] = useAppState()
+  // const dispatch = useAppDispatch()
   const [rows, setRows] = useDebouncedState(50)
   const [columns, setColumns] = useDebouncedState(50)
   const updateGridData = () => dispatch({type: 'UPDATE_GRID'})
@@ -74,6 +87,11 @@ function Grid() {
 Grid = React.memo(Grid)
 
 function Cell({row, column}) {
+  // const [state, dispatch] = useAppState()
+  // const cell = state.grid[row][column]
+  // const state = useAppState()
+  // const dispatch = useAppDispatch()
+
   const [state, dispatch] = useAppState()
   const cell = state.grid[row][column]
   const handleClick = () => dispatch({type: 'UPDATE_GRID_CELL', row, column})
@@ -94,7 +112,9 @@ Cell = React.memo(Cell)
 
 function DogNameInput() {
   const [state, dispatch] = useAppState()
+  // const state = useAppState()
   const {dogName} = state
+  // const dispatch = useAppDispatch()
 
   function handleChange(event) {
     const newDogName = event.target.value
